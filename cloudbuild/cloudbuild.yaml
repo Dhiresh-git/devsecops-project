@@ -129,14 +129,53 @@ steps:
     args: ['push', '--all-tags',
       'us-central1-docker.pkg.dev/$PROJECT_ID/devsecops-repo/order-service']
 
-  # Step 12: Deploy to GKE
+# Step 12: Deploy to GKE - Order Matters!
   - name: 'gcr.io/cloud-builders/kubectl'
-    id: 'deploy-to-gke'
+    id: 'deploy-namespace'
     args:
       - 'apply'
       - '-f'
-      - 'k8s/'
-      - '-R'
+      - 'k8s/namespaces/'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=dev-gke-cluster'
+
+  - name: 'gcr.io/cloud-builders/kubectl'
+    id: 'deploy-configmaps'
+    args:
+      - 'apply'
+      - '-f'
+      - 'k8s/configmaps/'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=dev-gke-cluster'
+
+  - name: 'gcr.io/cloud-builders/kubectl'
+    id: 'deploy-network-policies'
+    args:
+      - 'apply'
+      - '-f'
+      - 'k8s/network-policies/'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=dev-gke-cluster'
+
+  - name: 'gcr.io/cloud-builders/kubectl'
+    id: 'deploy-services'
+    args:
+      - 'apply'
+      - '-f'
+      - 'k8s/deployments/'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=dev-gke-cluster'
+
+  - name: 'gcr.io/cloud-builders/kubectl'
+    id: 'deploy-hpa'
+    args:
+      - 'apply'
+      - '-f'
+      - 'k8s/hpa/'
     env:
       - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
       - 'CLOUDSDK_CONTAINER_CLUSTER=dev-gke-cluster'
